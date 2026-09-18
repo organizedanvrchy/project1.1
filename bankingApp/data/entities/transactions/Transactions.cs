@@ -1,3 +1,5 @@
+using bankingApp.data.entities.accounts;
+
 namespace bankingApp.data.entities.transactions;
 
 public class Transaction
