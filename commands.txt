@@ -9,3 +9,6 @@ dotnet ef migrations add InitialCreate
 dotnet ef database update
 
 --- Make sure to add appsettings.json to .gitignore
+
+dotnet add package Microsoft.Extensions.Configuration
+dotnet add package Microsoft.Extensions.Configuration.Json
