@@ -7,7 +7,7 @@ using bankingApp.repositories.chequebook;
 using bankingApp.repositories.customer;
 using bankingApp.repositories.transactions;
 
-namespace bankingApp.services.customers;
+namespace bankingApp.services.customer;
 
 public interface ICustomerService
 {
