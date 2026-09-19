@@ -12,7 +12,7 @@ namespace bankingApp.services.admin;
 public interface IAdminService
 {
     Result CreateCustomer(string username, string plainPassword);
-    Result CreateBankAccount(int customerId, string accountType, decimal initialBalance);
+    Result CreateBankAccount(int customerId, AccountType accountType, decimal initialBalance);
     Result DeleteCustomer(int customerId);
     Result DeleteBankAccount(int accountId);
     Result EditCustomerUsername(int customerId, string newUsername);
@@ -66,7 +66,7 @@ public class AdminService : IAdminService
         return Result.Ok();
     }
 
-    public Result CreateBankAccount(int customerId, string accountType, decimal initialBalance)
+    public Result CreateBankAccount(int customerId, AccountType accountType, decimal initialBalance)
     {
         var customer = customerRepo.GetById(customerId);
         if (customer is null)
@@ -75,12 +75,12 @@ public class AdminService : IAdminService
         if (initialBalance < 0)
             return Result.Fail("Initial balance cannot be negative.");
 
-        BankAccount account = accountType.Trim().ToLower() switch
+        BankAccount account = accountType switch
         {
-            "checking" => new CheckingAccount { CustomerId = customerId, Balance = initialBalance },
-            "savings" => new SavingsAccount { CustomerId = customerId, Balance = initialBalance },
-            "loan" => new LoanAccount { CustomerId = customerId, Balance = initialBalance, OriginalLoanAmount = initialBalance },
-            _ => throw new ArgumentException($"Unknown account type '{accountType}'.")
+            AccountType.Checking => new CheckingAccount { CustomerId = customerId, Balance = initialBalance },
+            AccountType.Savings => new SavingsAccount { CustomerId = customerId, Balance = initialBalance },
+            AccountType.Loan => new LoanAccount { CustomerId = customerId, Balance = initialBalance, OriginalLoanAmount = initialBalance },
+            _ => throw new ArgumentOutOfRangeException(nameof(accountType), "Unknown account type.")
         };
 
         accountRepo.Add(account);
