@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using bankingApp.common;
 using bankingApp.data.entities.accounts;
 using bankingApp.data.entities.users;
 using bankingApp.services.admin;
@@ -21,8 +22,12 @@ public class AdminMenu
         bool isWorking = true;
         while (isWorking)
         {
-            Console.WriteLine("===== ADMIN VIEW =====\n");
-            Console.WriteLine($"Welcome Back, {admin.Username}!");
+            ConsoleHelper.Clear();
+
+            Console.WriteLine("========================================");
+            Console.WriteLine($"     ADMIN VIEW -- {admin.Username.ToUpper()}");
+            Console.WriteLine("========================================");
+            Console.WriteLine();
             Console.WriteLine("1. Create New Customer");
             Console.WriteLine("2. Create Bank Account For Customer");
             Console.WriteLine("3. Delete Customer");
@@ -32,13 +37,9 @@ public class AdminMenu
             Console.WriteLine("7. Reset Customer Password");
             Console.WriteLine("8. Approve/Reject Cheque Book Requests");
             Console.WriteLine("9. Exit");
-            Console.Write("Please Enter Your Choice: ");
+            Console.WriteLine();
 
-            if (!int.TryParse(Console.ReadLine(), out int choice))
-            {
-                Console.WriteLine("Invalid Choice. Please Try Again.");
-                continue;
-            }
+            int choice = ConsoleHelper.ReadInt("Select an option: ");
 
             switch (choice)
             {
@@ -51,158 +52,211 @@ public class AdminMenu
                 case 7: HandleResetPassword(); break;
                 case 8: HandleChequeBookApprovals(); break;
                 case 9:
-                    Console.WriteLine("Returning To Login...");
                     isWorking = false;
+                    Console.WriteLine();
+                    Console.WriteLine("Returning to login...");
                     break;
-                default: Console.WriteLine("Invalid Choice. Please Try Again."); break;
+                default:
+                    Console.WriteLine("Invalid option.");
+                    ConsoleHelper.Pause();
+                    break;
             }
         }
     }
 
     private void HandleCreateCustomer()
     {
-        Console.Write("Enter Username: ");
-        string username = Console.ReadLine() ?? "";
-        Console.Write("Enter Password: ");
-        string password = ConsoleHelper.ReadPassword();
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("            CREATE CUSTOMER");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        string username = ConsoleHelper.ReadRequiredString("Username: ");
+        string password = ConsoleHelper.ReadPassword("Password: ");
 
         var result = adminService.CreateCustomer(username, password);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Customer created successfully." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleCreateBankAccount()
     {
-        Console.Write("Enter Customer ID: ");
-        if (!int.TryParse(Console.ReadLine(), out int customerId))
-        {
-            Console.WriteLine("Invalid customer ID.");
-            return;
-        }
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("           CREATE BANK ACCOUNT");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
 
-        // Enum-driven menu -- only ever shows the account types that actually exist,
-        // and there's no way to type something that isn't one of them.
+        int customerId = ConsoleHelper.ReadPositiveInt("Customer ID: ");
+
         var accountTypes = Enum.GetValues<AccountType>();
-        Console.WriteLine("\nSelect Account Type:");
+        Console.WriteLine();
+        Console.WriteLine("Account Type");
+        Console.WriteLine("----------------------------------------");
         for (int i = 0; i < accountTypes.Length; i++)
             Console.WriteLine($"{i + 1}. {accountTypes[i]}");
+        Console.WriteLine();
 
-        Console.Write("Choice: ");
-        if (!int.TryParse(Console.ReadLine(), out int typeChoice) ||
-            typeChoice < 1 || typeChoice > accountTypes.Length)
+        int typeChoice = ConsoleHelper.ReadInt("Select account type: ");
+        if (typeChoice < 1 || typeChoice > accountTypes.Length)
         {
+            Console.WriteLine();
             Console.WriteLine("Invalid selection.");
+            ConsoleHelper.Pause();
             return;
         }
 
         AccountType selectedType = accountTypes[typeChoice - 1];
-
-        Console.Write("Enter Initial Balance: ");
-        if (!decimal.TryParse(Console.ReadLine(), out decimal balance))
-        {
-            Console.WriteLine("Invalid amount.");
-            return;
-        }
+        decimal balance = ConsoleHelper.ReadPositiveDecimal("Initial balance: ");
 
         var result = adminService.CreateBankAccount(customerId, selectedType, balance);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? $"{selectedType} account created." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleDeleteCustomer()
     {
-        Console.Write("Enter Customer ID to delete: ");
-        if (!int.TryParse(Console.ReadLine(), out int customerId))
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("            DELETE CUSTOMER");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        int customerId = ConsoleHelper.ReadPositiveInt("Customer ID: ");
+
+        if (!ConsoleHelper.Confirm($"Are you sure you want to delete customer {customerId}?"))
         {
-            Console.WriteLine("Invalid customer ID.");
+            Console.WriteLine("Cancelled.");
+            ConsoleHelper.Pause();
             return;
         }
 
         var result = adminService.DeleteCustomer(customerId);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Customer deleted." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleDeleteBankAccount()
     {
-        Console.Write("Enter Account ID to delete: ");
-        if (!int.TryParse(Console.ReadLine(), out int accountId))
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("          DELETE BANK ACCOUNT");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        int accountId = ConsoleHelper.ReadPositiveInt("Account ID: ");
+
+        if (!ConsoleHelper.Confirm($"Are you sure you want to delete account {accountId}?"))
         {
-            Console.WriteLine("Invalid account ID.");
+            Console.WriteLine("Cancelled.");
+            ConsoleHelper.Pause();
             return;
         }
 
         var result = adminService.DeleteBankAccount(accountId);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Account deleted." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleEditUsername()
     {
-        Console.Write("Enter Customer ID to edit: ");
-        if (!int.TryParse(Console.ReadLine(), out int customerId))
-        {
-            Console.WriteLine("Invalid customer ID.");
-            return;
-        }
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("          EDIT CUSTOMER USERNAME");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
 
-        Console.Write("Enter new username: ");
-        string newUsername = Console.ReadLine() ?? "";
+        int customerId = ConsoleHelper.ReadPositiveInt("Customer ID: ");
+        string newUsername = ConsoleHelper.ReadRequiredString("New username: ");
 
         var result = adminService.EditCustomerUsername(customerId, newUsername);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Username updated." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void ShowSummary()
     {
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("                SUMMARY");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
         var summary = adminService.GetSummary();
-        Console.WriteLine($"Total Customers: {summary.CustomerCount}");
+
+        Console.WriteLine($"Total Customers:     {summary.CustomerCount}");
         Console.WriteLine($"Total Bank Accounts: {summary.AccountCount}");
-        Console.WriteLine($"Total Balance Across All Accounts: ${summary.TotalBalance:F2}");
-        Console.WriteLine($"Total Transactions Recorded: {summary.TransactionCount}");
+        Console.WriteLine($"Total Balance:       {summary.TotalBalance:C}");
+        Console.WriteLine($"Total Transactions:  {summary.TransactionCount}");
+
+        ConsoleHelper.Pause();
     }
 
     private void HandleResetPassword()
     {
-        Console.Write("Enter Customer ID: ");
-        if (!int.TryParse(Console.ReadLine(), out int customerId))
-        {
-            Console.WriteLine("Invalid customer ID.");
-            return;
-        }
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("          RESET CUSTOMER PASSWORD");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
 
-        Console.Write("Enter new password: ");
-        string newPassword = ConsoleHelper.ReadPassword();
+        int customerId = ConsoleHelper.ReadPositiveInt("Customer ID: ");
+        string newPassword = ConsoleHelper.ReadPassword("New password: ");
 
         var result = adminService.ResetCustomerPassword(customerId, newPassword);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Password reset successfully." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleChequeBookApprovals()
     {
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("        CHEQUE BOOK APPROVALS");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
         var pending = adminService.GetPendingChequeBookRequests();
         if (pending.Count == 0)
         {
             Console.WriteLine("No pending requests.");
+            ConsoleHelper.Pause();
             return;
         }
 
+        Console.WriteLine("ID    ACCOUNT   REQUESTED");
+        Console.WriteLine("----------------------------------------");
         foreach (var request in pending)
-            Console.WriteLine($"Request #{request.RequestId} | Account: {request.AccountId} | Requested: {request.RequestDate:g}");
+            Console.WriteLine($"{request.RequestId,-5} {request.AccountId,-9} {request.RequestDate:g}");
 
-        Console.Write("\nEnter Request ID to approve/reject (or 0 to go back): ");
-        if (!int.TryParse(Console.ReadLine(), out int requestId) || requestId == 0)
-            return;
+        Console.WriteLine();
+        int requestId = ConsoleHelper.ReadInt("Request ID to approve/reject (0 to go back): ");
+        if (requestId == 0) return;
 
-        Console.Write("Approve or Reject? (A/R): ");
-        string? action = Console.ReadLine()?.Trim().ToUpper();
+        string action = ConsoleHelper.ReadRequiredString("Approve or Reject? (A/R): ").ToUpper();
 
         var result = action switch
         {
             "A" => adminService.ApproveChequeBookRequest(requestId),
             "R" => adminService.RejectChequeBookRequest(requestId),
-            _ => banking_common_Result_Fail()
+            _ => Result.Fail("Invalid action.")
         };
 
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Request processed." : result.Error);
-
-        static bankingApp.common.Result banking_common_Result_Fail() =>
-            bankingApp.common.Result.Fail("Invalid action.");
+        ConsoleHelper.Pause();
     }
 }

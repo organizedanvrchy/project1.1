@@ -19,28 +19,33 @@ public class MainMenu
 
         while (isRunning)
         {
-            Console.WriteLine("===== Welcome =====");
-            Console.WriteLine("1. Login");
-            Console.WriteLine("2. Exit\n");
-            Console.Write("Please Select An Option: ");
+            ConsoleHelper.Clear();
 
-            if (!int.TryParse(Console.ReadLine(), out int choice))
-            {
-                Console.WriteLine("Invalid Choice.\n");
-                continue;
-            }
+            Console.WriteLine("========================================");
+            Console.WriteLine("         WELCOME TO THE BANK");
+            Console.WriteLine("========================================");
+            Console.WriteLine();
+            Console.WriteLine("1. Login");
+            Console.WriteLine("2. Exit");
+            Console.WriteLine();
+
+            int choice = ConsoleHelper.ReadInt("Select an option: ");
 
             switch (choice)
             {
                 case 1:
                     HandleLogin();
                     break;
+
                 case 2:
                     isRunning = false;
-                    Console.WriteLine("Thank you for using our banking application. See you again!");
+                    Console.WriteLine();
+                    Console.WriteLine("Thank you for banking with us!");
                     break;
+
                 default:
-                    Console.WriteLine("Invalid Choice.\n");
+                    Console.WriteLine("Invalid option.");
+                    ConsoleHelper.Pause();
                     break;
             }
         }
@@ -51,34 +56,37 @@ public class MainMenu
         using var scope = provider.CreateScope();
         var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
 
-        Console.WriteLine("\n===== LOGIN =====\n");
-        Console.Write("Username: ");
-        string username = Console.ReadLine() ?? "";
-        Console.Write("Password: ");
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("                LOGIN");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        string username = ConsoleHelper.ReadRequiredString("Username: ");
         string password = ConsoleHelper.ReadPassword();
 
         var result = authService.Login(username, password);
         if (!result.Success)
         {
-            Console.WriteLine($"\n{result.Error}\n");
+            Console.WriteLine();
+            Console.WriteLine(result.Error);
+            ConsoleHelper.Pause();
             return;
         }
 
-        // One login path -- the account type decides where you land, not a separate menu choice.
         switch (result.Value)
         {
             case Customer customer:
-                Console.WriteLine($"\nLogin Successful. Welcome {customer.Username}!\n");
                 new CustomerMenu(scope.ServiceProvider, customer).Run();
                 break;
 
             case Admin admin:
-                Console.WriteLine($"\nLogin Successful. Welcome Admin {admin.Username}!\n");
                 new AdminMenu(scope.ServiceProvider, admin).Run();
                 break;
 
             default:
-                Console.WriteLine("\nUnrecognized account type.\n");
+                Console.WriteLine("Unrecognized account type.");
+                ConsoleHelper.Pause();
                 break;
         }
     }

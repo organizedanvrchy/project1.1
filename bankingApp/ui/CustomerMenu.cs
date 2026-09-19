@@ -21,9 +21,13 @@ public class CustomerMenu
         bool isWorking = true;
         while (isWorking)
         {
-            Console.WriteLine("===== CUSTOMER VIEW =====\n");
-            Console.WriteLine($"Welcome Back, {customer.Username}!");
-            Console.WriteLine("\n1. View My Accounts");
+            ConsoleHelper.Clear();
+
+            Console.WriteLine("========================================");
+            Console.WriteLine($"    WELCOME, {customer.Username.ToUpper()}");
+            Console.WriteLine("========================================");
+            Console.WriteLine();
+            Console.WriteLine("1. View My Accounts");
             Console.WriteLine("2. Withdraw");
             Console.WriteLine("3. Deposit");
             Console.WriteLine("4. Transfer");
@@ -31,13 +35,9 @@ public class CustomerMenu
             Console.WriteLine("6. Request Cheque Book");
             Console.WriteLine("7. Change Password");
             Console.WriteLine("8. Exit");
-            Console.Write("\nPlease Select An Option: ");
+            Console.WriteLine();
 
-            if (!int.TryParse(Console.ReadLine(), out int choice))
-            {
-                Console.WriteLine("Invalid Choice.");
-                continue;
-            }
+            int choice = ConsoleHelper.ReadInt("Select an option: ");
 
             switch (choice)
             {
@@ -49,142 +49,201 @@ public class CustomerMenu
                 case 6: HandleChequeBookRequest(); break;
                 case 7: HandleChangePassword(); break;
                 case 8: isWorking = false; break;
-                default: Console.WriteLine("Invalid Choice."); break;
+                default:
+                    Console.WriteLine("Invalid option.");
+                    ConsoleHelper.Pause();
+                    break;
             }
         }
     }
 
-    // Displays the customer's accounts and returns the one they pick, or null if they back out.
-    // Every action that needs "which account?" funnels through this, so the selection UI
-    // only needs to be written once.
-    private BankAccount? SelectAccount(string prompt)
+    private static string TypeName(BankAccount account) => account switch
+    {
+        CheckingAccount => "Checking",
+        SavingsAccount => "Savings",
+        LoanAccount => "Loan",
+        _ => "Unknown"
+    };
+
+    private void PrintAccountList(List<BankAccount> accounts)
+    {
+        Console.WriteLine("ID    TYPE       BALANCE");
+        Console.WriteLine("----------------------------------------");
+        foreach (var account in accounts)
+        {
+            Console.WriteLine(
+                $"{account.AccountId,-5} {TypeName(account),-10} {account.Balance,10:C}");
+        }
+    }
+
+    private void ShowAccounts()
+    {
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("             MY ACCOUNTS");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        var accounts = customerService.GetAccounts(customer.UserId);
+        if (accounts.Count == 0)
+            Console.WriteLine("You have no accounts.");
+        else
+            PrintAccountList(accounts);
+
+        ConsoleHelper.Pause();
+    }
+
+    private BankAccount? SelectAccount(string title)
     {
         var accounts = customerService.GetAccounts(customer.UserId);
         if (accounts.Count == 0)
         {
             Console.WriteLine("You have no accounts.");
+            ConsoleHelper.Pause();
             return null;
         }
 
-        Console.WriteLine($"\n{prompt}");
-        foreach (var account in accounts)
-        {
-            string typeName = account switch
-            {
-                CheckingAccount => "Checking",
-                SavingsAccount => "Savings",
-                LoanAccount => "Loan",
-                _ => "Unknown"
-            };
-            Console.WriteLine($"  [{account.AccountId}] {typeName} - Balance: ${account.Balance:F2}");
-        }
+        Console.WriteLine(title);
+        Console.WriteLine("----------------------------------------");
+        PrintAccountList(accounts);
+        Console.WriteLine();
 
-        Console.Write("Enter Account ID (or 0 to cancel): ");
-        if (!int.TryParse(Console.ReadLine(), out int accountId) || accountId == 0)
+        int accountId = ConsoleHelper.ReadInt("Enter Account ID (0 to cancel): ");
+        if (accountId == 0)
             return null;
 
         var selected = accounts.FirstOrDefault(a => a.AccountId == accountId);
         if (selected is null)
+        {
             Console.WriteLine("That account doesn't belong to you or doesn't exist.");
+            ConsoleHelper.Pause();
+        }
 
         return selected;
     }
 
-    private void ShowAccounts()
-    {
-        SelectAccount("Your Accounts:"); // reuse the listing; ignore the returned selection here
-    }
-
     private void HandleWithdraw()
     {
-        var account = SelectAccount("Select an account to withdraw from:");
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("               WITHDRAW");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        var account = SelectAccount("Select an account:");
         if (account is null) return;
 
-        Console.Write("Enter amount to withdraw: ");
-        if (!decimal.TryParse(Console.ReadLine(), out decimal amount))
-        {
-            Console.WriteLine("Invalid amount.");
-            return;
-        }
-
+        decimal amount = ConsoleHelper.ReadPositiveDecimal("Amount to withdraw: ");
         var result = customerService.Withdraw(account.AccountId, amount);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Withdrawal successful." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleDeposit()
     {
-        var account = SelectAccount("Select an account to deposit into:");
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("                DEPOSIT");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        var account = SelectAccount("Select an account:");
         if (account is null) return;
 
-        Console.Write("Enter amount to deposit: ");
-        if (!decimal.TryParse(Console.ReadLine(), out decimal amount))
-        {
-            Console.WriteLine("Invalid amount.");
-            return;
-        }
-
+        decimal amount = ConsoleHelper.ReadPositiveDecimal("Amount to deposit: ");
         var result = customerService.Deposit(account.AccountId, amount);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Deposit successful." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleTransfer()
     {
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("                TRANSFER");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
         var fromAccount = SelectAccount("Select the account to transfer FROM:");
         if (fromAccount is null) return;
 
-        // Destination can be another customer's account, so it's typed directly
-        // rather than picked from this customer's own list.
-        Console.Write("Enter destination Account ID (yours or another customer's): ");
-        if (!int.TryParse(Console.ReadLine(), out int toAccountId))
-        {
-            Console.WriteLine("Invalid account ID.");
-            return;
-        }
-
-        Console.Write("Enter amount to transfer: ");
-        if (!decimal.TryParse(Console.ReadLine(), out decimal amount))
-        {
-            Console.WriteLine("Invalid amount.");
-            return;
-        }
+        Console.WriteLine();
+        int toAccountId = ConsoleHelper.ReadPositiveInt("Destination Account ID (yours or another customer's): ");
+        decimal amount = ConsoleHelper.ReadPositiveDecimal("Amount to transfer: ");
 
         var result = customerService.Transfer(fromAccount.AccountId, toAccountId, amount);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Transfer successful." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleRecentTransactions()
     {
-        var account = SelectAccount("Select an account to view transactions for:");
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("          RECENT TRANSACTIONS");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        var account = SelectAccount("Select an account:");
         if (account is null) return;
 
         var transactions = customerService.GetRecentTransactions(account.AccountId, 5);
+
+        Console.WriteLine();
         if (transactions.Count == 0)
         {
             Console.WriteLine("No transactions found.");
-            return;
+        }
+        else
+        {
+            Console.WriteLine("DATE               TYPE         AMOUNT");
+            Console.WriteLine("----------------------------------------");
+            foreach (var t in transactions)
+                Console.WriteLine($"{t.TransactionDate,-18:g} {t.TransactionType,-12} {t.TransactionAmount,10:C}");
         }
 
-        foreach (var t in transactions)
-            Console.WriteLine($"{t.TransactionDate:g} | {t.TransactionType} | ${t.TransactionAmount:F2}");
+        ConsoleHelper.Pause();
     }
 
     private void HandleChequeBookRequest()
     {
-        var account = SelectAccount("Select the checking account to request a cheque book for:");
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("          REQUEST CHEQUE BOOK");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        var account = SelectAccount("Select the checking account:");
         if (account is null) return;
 
         var result = customerService.RequestChequeBook(account.AccountId);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Cheque book request submitted." : result.Error);
+        ConsoleHelper.Pause();
     }
 
     private void HandleChangePassword()
     {
-        Console.Write("Current password: ");
-        string currentPassword = ConsoleHelper.ReadPassword();
-        Console.Write("New password: ");
-        string newPassword = ConsoleHelper.ReadPassword();
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("             CHANGE PASSWORD");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        string currentPassword = ConsoleHelper.ReadPassword("Current password: ");
+        string newPassword = ConsoleHelper.ReadPassword("New password: ");
 
         var result = customerService.ChangePassword(customer.UserId, currentPassword, newPassword);
+
+        Console.WriteLine();
         Console.WriteLine(result.Success ? "Password changed successfully." : result.Error);
+        ConsoleHelper.Pause();
     }
 }
