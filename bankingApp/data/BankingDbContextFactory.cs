@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using System.Text.Json;
 
-namespace banking.data;
+namespace bankingApp.data;
 
 public class BankingDbContextFactory : IDesignTimeDbContextFactory<BankingDbContext>
 {
@@ -14,9 +14,9 @@ public class BankingDbContextFactory : IDesignTimeDbContextFactory<BankingDbCont
         var optionsBuilder = new DbContextOptionsBuilder<BankingDbContext>();
         string connectionString = configuration.RootElement
             .GetProperty("ConnectionStrings")
-            .GetProperty("BankingDb")
+            .GetProperty("BankingAppDb")
             .GetString()
-            ?? throw new InvalidOperationException("Connection string 'BankingDb' not found.");
+            ?? throw new InvalidOperationException("Connection string 'BankingAppDb' not found.");
 
         optionsBuilder.UseSqlServer(connectionString);
 

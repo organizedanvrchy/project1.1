@@ -5,7 +5,7 @@ using bankingApp.data.entities.chequebook;
 using bankingApp.data.entities.transactions;
 using bankingApp.data.entities.users;
 
-namespace banking.data;
+namespace bankingApp.data;
 
 public class BankingDbContext : DbContext
 {
