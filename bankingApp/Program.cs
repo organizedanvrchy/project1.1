@@ -12,6 +12,7 @@ using bankingApp.services.auth;
 using bankingApp.services.customer;
 using bankingApp.services.admin;
 using bankingApp.ui;
+using bankingApp.seeding;
 
 IConfiguration configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -37,6 +38,16 @@ services.AddScoped<ICustomerService, CustomerService>();
 services.AddScoped<IAdminService, AdminService>();
 
 var provider = services.BuildServiceProvider();
+
+using (var scope = provider.CreateScope())
+{
+    var seeder = new DatabaseSeeder(
+        scope.ServiceProvider.GetRequiredService<ICustomerRepository>(),
+        scope.ServiceProvider.GetRequiredService<IAdminRepository>(),
+        scope.ServiceProvider.GetRequiredService<IBankAccountRepository>()
+    );
+    seeder.Seed();
+}
 
 var mainMenu = new MainMenu(provider);
 mainMenu.Run();
