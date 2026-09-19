@@ -2,7 +2,7 @@ using bankingApp.data;
 using bankingApp.data.entities.users;
 using Microsoft.EntityFrameworkCore;
 
-namespace bankingApp.repositories.users;
+namespace bankingApp.repositories.customer;
 
 public class CustomerRepository : ICustomerRepository
 {

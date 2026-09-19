@@ -1,6 +1,6 @@
 using bankingApp.data.entities.users;
 
-namespace bankingApp.repositories.users;
+namespace bankingApp.repositories.customer;
 
 public interface ICustomerRepository
 {
