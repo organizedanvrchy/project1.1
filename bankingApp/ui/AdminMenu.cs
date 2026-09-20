@@ -193,12 +193,29 @@ public class AdminMenu
         Console.WriteLine("========================================");
         Console.WriteLine();
 
-        var summary = adminService.GetSummary();
+        AdminSummary summary = adminService.GetSummary();
 
-        Console.WriteLine($"Total Customers:     {summary.CustomerCount}");
-        Console.WriteLine($"Total Bank Accounts: {summary.AccountCount}");
-        Console.WriteLine($"Total Balance:       {summary.TotalBalance:C}");
-        Console.WriteLine($"Total Transactions:  {summary.TransactionCount}");
+        if (summary.Customers.Count == 0)
+        {
+            Console.WriteLine("No customers found.");
+            ConsoleHelper.Pause();
+            return;
+        }
+
+        Console.WriteLine($"{"ID",-5} {"USERNAME",-20} {"ACCOUNTS",-10} {"BALANCE",12}");
+        Console.WriteLine("-------------------------------------------------");
+
+        foreach (var customer in summary.Customers)
+        {
+            Console.WriteLine($"{customer.CustomerId,-5} {customer.Username,-20} {customer.AccountCount,-10} {customer.TotalBalance,12:C}");
+        }
+
+        Console.WriteLine("-------------------------------------------------");
+        Console.WriteLine($"{"TOTAL ",-5}{summary.Customers.Count + " customers",-20} {summary.TotalAccountCount,-10} {summary.TotalBalance,12:C}");
+        Console.WriteLine("-------------------------------------------------");
+
+        Console.WriteLine();
+        Console.WriteLine($"Total Transactions Recorded: {summary.TotalTransactionCount}");
 
         ConsoleHelper.Pause();
     }

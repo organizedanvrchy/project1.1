@@ -9,20 +9,6 @@ using bankingApp.repositories.transactions;
 
 namespace bankingApp.services.admin;
 
-public interface IAdminService
-{
-    Result CreateCustomer(string username, string plainPassword);
-    Result CreateBankAccount(int customerId, AccountType accountType, decimal initialBalance);
-    Result DeleteCustomer(int customerId);
-    Result DeleteBankAccount(int accountId);
-    Result EditCustomerUsername(int customerId, string newUsername);
-    (int CustomerCount, int AccountCount, decimal TotalBalance, int TransactionCount) GetSummary();
-    Result ResetCustomerPassword(int customerId, string newPassword);
-    List<ChequeBookRequest> GetPendingChequeBookRequests();
-    Result ApproveChequeBookRequest(int requestId);
-    Result RejectChequeBookRequest(int requestId);
-}
-
 public class AdminService : IAdminService
 {
     private readonly ICustomerRepository customerRepo;
@@ -122,21 +108,39 @@ public class AdminService : IAdminService
         return Result.Ok();
     }
 
-    public (int CustomerCount, int AccountCount, decimal TotalBalance, int TransactionCount) GetSummary()
+    public AdminSummary GetSummary()
     {
         var customers = customerRepo.GetAll();
         var transactions = transactionRepo.GetAll();
 
+        var customerSummaries = new List<CustomerAccountSummary>();
+        int totalAccounts = 0;
         decimal totalBalance = 0;
-        int accountCount = 0;
+
         foreach (var customer in customers)
         {
             var accounts = accountRepo.GetByCustomer(customer.UserId);
-            accountCount += accounts.Count;
-            totalBalance += accounts.Sum(a => a.Balance);
+            decimal customerTotal = accounts.Sum(a => a.Balance);
+
+            customerSummaries.Add(new CustomerAccountSummary
+            {
+                CustomerId = customer.UserId,
+                Username = customer.Username,
+                AccountCount = accounts.Count,
+                TotalBalance = customerTotal
+            });
+
+            totalAccounts += accounts.Count;
+            totalBalance += customerTotal;
         }
 
-        return (customers.Count, accountCount, totalBalance, transactions.Count);
+        return new AdminSummary
+        {
+            Customers = customerSummaries,
+            TotalAccountCount = totalAccounts,
+            TotalBalance = totalBalance,
+            TotalTransactionCount = transactions.Count
+        };
     }
 
     public Result ResetCustomerPassword(int customerId, string newPassword)
