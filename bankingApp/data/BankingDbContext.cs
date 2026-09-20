@@ -100,6 +100,12 @@ public class BankingDbContext : DbContext
                 .HasForeignKey(d => d.RecipientAccountId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK_transactions_recipient");
+                
+            entity.Property(e => e.Direction)
+                .HasConversion<string>()
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasColumnName("transaction_direction");
         });
 
         // ---- ChequeBookRequest ----
