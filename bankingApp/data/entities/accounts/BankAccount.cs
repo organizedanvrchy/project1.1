@@ -16,10 +16,14 @@ public abstract class BankAccount
     public abstract Result Withdraw(decimal amount);
 
     // Deposit has a sensible shared default; only LoanAccount needs to override it.
+// BankAccount.cs
     public virtual Result Deposit(decimal amount)
     {
         if (amount <= 0)
             return Result.Fail("Amount must be greater than zero.");
+
+        if (amount > TransactionLimits.MaxAmount)
+            return Result.Fail($"Amount exceeds the maximum allowed of {TransactionLimits.MaxAmount:C}.");
 
         Balance += amount;
         return Result.Ok();

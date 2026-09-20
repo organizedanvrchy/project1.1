@@ -202,10 +202,11 @@ public class CustomerMenu
         }
         else
         {
-            Console.WriteLine("DATE               TYPE         AMOUNT");
+            Console.WriteLine("DATE               TYPE         DIR   AMOUNT");
             Console.WriteLine("----------------------------------------");
             foreach (var t in transactions)
-                Console.WriteLine($"{t.TransactionDate,-18:g} {t.TransactionType,-12} {t.TransactionAmount,10:C}");
+                Console.WriteLine(
+                    $"{t.TransactionDate,-18:g} {t.TransactionType,-12} {t.Direction,-5} {t.TransactionAmount,10:C}");
         }
 
         ConsoleHelper.Pause();
