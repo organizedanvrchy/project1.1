@@ -12,4 +12,5 @@ public class Transaction
     public int? RecipientAccountId { get; set; }
     public virtual BankAccount Account { get; set; } = null!;
     public virtual BankAccount? RecipientAccount { get; set; }
+    public TransactionDirection Direction { get; set; }
 }

@@ -25,14 +25,14 @@ public class TransactionRepository : ITransactionRepository
 
     public List<Transaction> GetByAccount(int accountId) =>
         trContext.Transactions
-            .Where(t => t.AccountId == accountId || t.RecipientAccountId == accountId)
+            .Where(t => t.AccountId == accountId)
             .OrderByDescending(t => t.TransactionDate)
             .ToList();
 
     public List<Transaction> GetRecentByAccount(int accountId, int count) =>
         trContext.Transactions
-            .Where(t => t.AccountId == accountId || t.RecipientAccountId == accountId)
+            .Where(t => t.AccountId == accountId)
             .OrderByDescending(t => t.TransactionDate)
             .Take(count)
             .ToList();
-}
+    }

@@ -45,13 +45,10 @@ public class CustomerService : ICustomerService
     public Result Withdraw(int accountId, decimal amount)
     {
         var account = accountRepo.GetById(accountId);
-        if (account is null)
-            return Result.Fail("Account not found.");
+        if (account is null) return Result.Fail("Account not found.");
 
-        // Each subtype decides its own rule -- CustomerService never branches on account type.
         var result = account.Withdraw(amount);
-        if (!result.Success)
-            return result;
+        if (!result.Success) return result;
 
         accountRepo.Save();
         transactionRepo.Add(new Transaction
@@ -59,6 +56,7 @@ public class CustomerService : ICustomerService
             AccountId = accountId,
             TransactionAmount = amount,
             TransactionType = TransactionType.Withdrawal,
+            Direction = TransactionDirection.Out,
             TransactionDate = DateTime.Now
         });
 
@@ -68,12 +66,10 @@ public class CustomerService : ICustomerService
     public Result Deposit(int accountId, decimal amount)
     {
         var account = accountRepo.GetById(accountId);
-        if (account is null)
-            return Result.Fail("Account not found.");
+        if (account is null) return Result.Fail("Account not found.");
 
         var result = account.Deposit(amount);
-        if (!result.Success)
-            return result;
+        if (!result.Success) return result;
 
         accountRepo.Save();
         transactionRepo.Add(new Transaction
@@ -81,6 +77,7 @@ public class CustomerService : ICustomerService
             AccountId = accountId,
             TransactionAmount = amount,
             TransactionType = TransactionType.Deposit,
+            Direction = TransactionDirection.In,
             TransactionDate = DateTime.Now
         });
 
@@ -93,33 +90,41 @@ public class CustomerService : ICustomerService
             return Result.Fail("Cannot transfer to the same account.");
 
         var fromAccount = accountRepo.GetById(fromAccountId);
-        if (fromAccount is null)
-            return Result.Fail("Source account not found.");
+        if (fromAccount is null) return Result.Fail("Source account not found.");
 
         var toAccount = accountRepo.GetById(toAccountId);
-        if (toAccount is null)
-            return Result.Fail("Destination account not found.");
+        if (toAccount is null) return Result.Fail("Destination account not found.");
 
         var withdrawResult = fromAccount.Withdraw(amount);
-        if (!withdrawResult.Success)
-            return withdrawResult;
+        if (!withdrawResult.Success) return withdrawResult;
 
         var depositResult = toAccount.Deposit(amount);
         if (!depositResult.Success)
         {
-            // Roll back the withdrawal in memory since the deposit side failed
-            // (e.g. transferring into a Loan account for more than its remaining balance).
-            fromAccount.Deposit(amount);
+            fromAccount.Deposit(amount); // roll back the in-memory withdrawal
             return depositResult;
         }
 
         accountRepo.Save();
+
+        // One ledger entry per account -- each side gets its own row and its own correct Direction.
         transactionRepo.Add(new Transaction
         {
             AccountId = fromAccountId,
             RecipientAccountId = toAccountId,
             TransactionAmount = amount,
             TransactionType = TransactionType.Transfer,
+            Direction = TransactionDirection.Out,
+            TransactionDate = DateTime.Now
+        });
+
+        transactionRepo.Add(new Transaction
+        {
+            AccountId = toAccountId,
+            RecipientAccountId = fromAccountId,
+            TransactionAmount = amount,
+            TransactionType = TransactionType.Transfer,
+            Direction = TransactionDirection.In,
             TransactionDate = DateTime.Now
         });
 
