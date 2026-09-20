@@ -31,7 +31,7 @@ public class TransactionRepository : ITransactionRepository
 
     public List<Transaction> GetRecentByAccount(int accountId, int count) =>
         trContext.Transactions
-            .Where(t => t.AccountId == accountId)
+            .Where(t => t.AccountId == accountId || t.RecipientAccountId == accountId)
             .OrderByDescending(t => t.TransactionDate)
             .Take(count)
             .ToList();
