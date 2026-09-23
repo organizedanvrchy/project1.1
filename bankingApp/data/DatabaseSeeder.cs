@@ -25,7 +25,7 @@ public class DatabaseSeeder
     public void Seed()
     {
         SeedAdmin();
-        SeedCustomers();
+        // SeedCustomers();
     }
 
     private void SeedAdmin()
@@ -43,56 +43,56 @@ public class DatabaseSeeder
         Console.WriteLine("[Seed] Default admin created (username: admin / password: password)");
     }
 
-    private void SeedCustomers()
-    {
-        if (customerRepo.Any())
-            return;
+    // private void SeedCustomers()
+    // {
+    //     if (customerRepo.Any())
+    //         return;
 
-        var customers = new List<Customer>
-        {
-            new() { Username = "alice", PasswordHash = BCrypt.Net.BCrypt.HashPassword("password1") },
-            new() { Username = "bob",   PasswordHash = BCrypt.Net.BCrypt.HashPassword("password2") },
-            new() { Username = "carol", PasswordHash = BCrypt.Net.BCrypt.HashPassword("password3") },
-        };
+    //     var customers = new List<Customer>
+    //     {
+    //         new() { Username = "alice", PasswordHash = BCrypt.Net.BCrypt.HashPassword("password1") },
+    //         new() { Username = "bob",   PasswordHash = BCrypt.Net.BCrypt.HashPassword("password2") },
+    //         new() { Username = "carol", PasswordHash = BCrypt.Net.BCrypt.HashPassword("password3") },
+    //     };
 
-        foreach (var customer in customers)
-        {
-            // Add() persists the customer and populates their generated UserId,
-            // so bank accounts can reference it immediately afterward.
-            customerRepo.Add(customer);
-        }
+    //     foreach (var customer in customers)
+    //     {
+    //         // Add() persists the customer and populates their generated UserId,
+    //         // so bank accounts can reference it immediately afterward.
+    //         customerRepo.Add(customer);
+    //     }
 
-        // Give each customer one of each account type so all three Withdraw/Deposit
-        // overrides have real data to exercise from the CLI right away.
-        SeedAccountsFor(customers[0], checkingBalance: 1500m, savingsBalance: 3000m, loanAmount: 10000m);
-        SeedAccountsFor(customers[1], checkingBalance: 800m,  savingsBalance: 1200m, loanAmount: 5000m);
-        SeedAccountsFor(customers[2], checkingBalance: 2200m, savingsBalance: 500m,  loanAmount: 15000m);
+    //     // Give each customer one of each account type so all three Withdraw/Deposit
+    //     // overrides have real data to exercise from the CLI right away.
+    //     SeedAccountsFor(customers[0], checkingBalance: 1500m, savingsBalance: 3000m, loanAmount: 10000m);
+    //     SeedAccountsFor(customers[1], checkingBalance: 800m,  savingsBalance: 1200m, loanAmount: 5000m);
+    //     SeedAccountsFor(customers[2], checkingBalance: 2200m, savingsBalance: 500m,  loanAmount: 15000m);
 
-        Console.WriteLine("[Seed] 3 customers created, each with a Checking, Savings, and Loan account.");
-    }
+    //     Console.WriteLine("[Seed] 3 customers created, each with a Checking, Savings, and Loan account.");
+    // }
 
-    private void SeedAccountsFor(Customer customer, decimal checkingBalance, decimal savingsBalance, decimal loanAmount)
-    {
-        accountRepo.Add(new CheckingAccount
-        {
-            CustomerId = customer.UserId,
-            Balance = checkingBalance
-        });
+    // private void SeedAccountsFor(Customer customer, decimal checkingBalance, decimal savingsBalance, decimal loanAmount)
+    // {
+    //     accountRepo.Add(new CheckingAccount
+    //     {
+    //         CustomerId = customer.UserId,
+    //         Balance = checkingBalance
+    //     });
 
-        accountRepo.Add(new SavingsAccount
-        {
-            CustomerId = customer.UserId,
-            Balance = savingsBalance,
-            WithdrawalLimitPerMonth = 6,
-            WithdrawalsThisPeriod = 0,
-            PeriodStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)
-        });
+    //     accountRepo.Add(new SavingsAccount
+    //     {
+    //         CustomerId = customer.UserId,
+    //         Balance = savingsBalance,
+    //         WithdrawalLimitPerMonth = 6,
+    //         WithdrawalsThisPeriod = 0,
+    //         PeriodStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)
+    //     });
 
-        accountRepo.Add(new LoanAccount
-        {
-            CustomerId = customer.UserId,
-            Balance = loanAmount,          // full amount still owed
-            OriginalLoanAmount = loanAmount
-        });
-    }
+    //     accountRepo.Add(new LoanAccount
+    //     {
+    //         CustomerId = customer.UserId,
+    //         Balance = loanAmount,          // full amount still owed
+    //         OriginalLoanAmount = loanAmount
+    //     });
+    // }
 }
