@@ -42,6 +42,9 @@ public class AdminService : IAdminService
         if (customerRepo.GetByUsername(username) is not null)
             return Result.Fail("Username already taken.");
 
+        if (string.IsNullOrWhiteSpace(plainPassword) || plainPassword.Length < 6)
+            return Result.Fail("Password must be at least 6 characters.");
+
         var newCustomer = new Customer
         {
             Username = username,
@@ -116,22 +119,30 @@ public class AdminService : IAdminService
         var customerSummaries = new List<CustomerAccountSummary>();
         int totalAccounts = 0;
         decimal totalBalance = 0;
+        decimal totalLoanBalance = 0;
+        decimal totalNetBalance = 0;
 
         foreach (var customer in customers)
         {
             var accounts = accountRepo.GetByCustomer(customer.UserId);
-            decimal customerTotal = accounts.Sum(a => a.Balance);
+            decimal customerTotal = accounts.Where(a => a is not LoanAccount).Sum(a => a.Balance);
+            decimal customerLoanTotal = accounts.Where(a => a is LoanAccount).Sum(a => a.Balance);
+            decimal netBalance = customerTotal - customerLoanTotal;
 
             customerSummaries.Add(new CustomerAccountSummary
             {
                 CustomerId = customer.UserId,
                 Username = customer.Username,
                 AccountCount = accounts.Count,
-                TotalBalance = customerTotal
+                TotalBalance = customerTotal,
+                TotalLoanBalance = customerLoanTotal,
+                NetBalance = netBalance
             });
 
             totalAccounts += accounts.Count;
             totalBalance += customerTotal;
+            totalLoanBalance += customerLoanTotal;
+            totalNetBalance += netBalance;
         }
 
         return new AdminSummary
@@ -139,7 +150,9 @@ public class AdminService : IAdminService
             Customers = customerSummaries,
             TotalAccountCount = totalAccounts,
             TotalBalance = totalBalance,
-            TotalTransactionCount = transactions.Count
+            TotalLoanBalance = totalLoanBalance,
+            TotalTransactionCount = transactions.Count,
+            TotalNetBalance = totalNetBalance
         };
     }
 

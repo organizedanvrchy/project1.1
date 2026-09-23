@@ -6,4 +6,6 @@ public class CustomerAccountSummary
     public string Username { get; set; } = null!;
     public int AccountCount { get; set; }
     public decimal TotalBalance { get; set; }
+    public decimal TotalLoanBalance { get; set; }
+    public decimal NetBalance { get; set; }
 }

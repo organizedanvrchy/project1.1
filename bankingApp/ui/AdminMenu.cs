@@ -202,17 +202,17 @@ public class AdminMenu
             return;
         }
 
-        Console.WriteLine($"{"ID",-5} {"USERNAME",-20} {"ACCOUNTS",-10} {"BALANCE",12}");
-        Console.WriteLine("-------------------------------------------------");
+        Console.WriteLine($"{"ID",-5} {"USERNAME",-20} {"ACCOUNTS",-10} {"BALANCE",12} {"LOANS",12} {"NET BALANCE",12}");
+        Console.WriteLine("--------------------------------------------------------------------------------------------------");
 
         foreach (var customer in summary.Customers)
         {
-            Console.WriteLine($"{customer.CustomerId,-5} {customer.Username,-20} {customer.AccountCount,-10} {customer.TotalBalance,12:C}");
+            Console.WriteLine($"{customer.CustomerId,-5} {customer.Username,-20} {customer.AccountCount,-10} {customer.TotalBalance,12:C} {customer.TotalLoanBalance,12:C} {customer.NetBalance,12:C}");
         }
 
-        Console.WriteLine("-------------------------------------------------");
-        Console.WriteLine($"{"TOTAL ",-5}{summary.Customers.Count + " customers",-20} {summary.TotalAccountCount,-10} {summary.TotalBalance,12:C}");
-        Console.WriteLine("-------------------------------------------------");
+        Console.WriteLine("--------------------------------------------------------------------------------------------------");
+        Console.WriteLine($"{"TOTAL ",-5}{summary.Customers.Count + " customers",-20} {summary.TotalAccountCount,-10} {summary.TotalBalance,12:C} {summary.TotalLoanBalance,12:C} {summary.TotalNetBalance,12:C}");
+        Console.WriteLine("--------------------------------------------------------------------------------------------------");
 
         Console.WriteLine();
         Console.WriteLine($"Total Transactions Recorded: {summary.TotalTransactionCount}");
