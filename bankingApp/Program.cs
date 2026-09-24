@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using bankingApp.data;
-using bankingApp.repositories.users;      // adjust if your actual namespace differs
-using bankingApp.repositories.admin;      // adjust if your actual namespace differs
+using bankingApp.repositories.users;
+using bankingApp.repositories.admin;
 using bankingApp.repositories.customer;
 using bankingApp.repositories.account;
 using bankingApp.repositories.transactions;
