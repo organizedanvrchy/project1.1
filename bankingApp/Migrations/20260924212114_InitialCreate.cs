@@ -47,7 +47,8 @@ namespace bankingApp.Migrations
                         name: "FK_bank_accounts_users_customer_id",
                         column: x => x.customer_id,
                         principalTable: "users",
-                        principalColumn: "user_id");
+                        principalColumn: "user_id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -68,7 +69,8 @@ namespace bankingApp.Migrations
                         name: "FK_cheque_requests_accounts",
                         column: x => x.account_id,
                         principalTable: "bank_accounts",
-                        principalColumn: "account_id");
+                        principalColumn: "account_id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -81,7 +83,8 @@ namespace bankingApp.Migrations
                     transaction_type = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false),
                     transaction_date = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "(getdate())"),
                     account_id = table.Column<int>(type: "int", nullable: false),
-                    recipient_account_id = table.Column<int>(type: "int", nullable: true)
+                    recipient_account_id = table.Column<int>(type: "int", nullable: true),
+                    transaction_direction = table.Column<string>(type: "varchar(10)", unicode: false, maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -91,13 +94,12 @@ namespace bankingApp.Migrations
                         column: x => x.account_id,
                         principalTable: "bank_accounts",
                         principalColumn: "account_id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_transactions_recipient",
                         column: x => x.recipient_account_id,
                         principalTable: "bank_accounts",
-                        principalColumn: "account_id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "account_id");
                 });
 
             migrationBuilder.CreateIndex(

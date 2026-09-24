@@ -7,6 +7,7 @@ namespace bankingApp.services.admin;
 public interface IAdminService
 {
     Result CreateCustomer(string username, string plainPassword);
+    Result CreateAdmin(string username, string plainPassword);
     Result CreateBankAccount(int customerId, AccountType accountType, decimal initialBalance);
     Result DeleteCustomer(int customerId);
     Result DeleteBankAccount(int accountId);

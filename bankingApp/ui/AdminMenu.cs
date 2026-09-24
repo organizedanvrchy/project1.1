@@ -29,14 +29,15 @@ public class AdminMenu
             Console.WriteLine("========================================");
             Console.WriteLine();
             Console.WriteLine("1. Create New Customer");
-            Console.WriteLine("2. Create Bank Account For Customer");
-            Console.WriteLine("3. Delete Customer");
-            Console.WriteLine("4. Delete Bank Account");
-            Console.WriteLine("5. Edit Customer Username");
-            Console.WriteLine("6. Display Summary");
-            Console.WriteLine("7. Reset Customer Password");
-            Console.WriteLine("8. Approve/Reject Cheque Book Requests");
-            Console.WriteLine("9. Exit");
+            Console.WriteLine("2. Create New Administrator");
+            Console.WriteLine("3. Create Bank Account For Customer");
+            Console.WriteLine("4. Delete Customer");
+            Console.WriteLine("5. Delete Bank Account");
+            Console.WriteLine("6. Edit Customer Username");
+            Console.WriteLine("7. Display Summary");
+            Console.WriteLine("8. Reset Customer Password");
+            Console.WriteLine("9. Approve/Reject Cheque Book Requests");
+            Console.WriteLine("10. Exit");
             Console.WriteLine();
 
             int choice = ConsoleHelper.ReadInt("Select an option: ");
@@ -44,14 +45,15 @@ public class AdminMenu
             switch (choice)
             {
                 case 1: HandleCreateCustomer(); break;
-                case 2: HandleCreateBankAccount(); break;
-                case 3: HandleDeleteCustomer(); break;
-                case 4: HandleDeleteBankAccount(); break;
-                case 5: HandleEditUsername(); break;
-                case 6: ShowSummary(); break;
-                case 7: HandleResetPassword(); break;
-                case 8: HandleChequeBookApprovals(); break;
-                case 9:
+                case 2: HandleCreateAdmin(); break;
+                case 3: HandleCreateBankAccount(); break;
+                case 4: HandleDeleteCustomer(); break;
+                case 5: HandleDeleteBankAccount(); break;
+                case 6: HandleEditUsername(); break;
+                case 7: ShowSummary(); break;
+                case 8: HandleResetPassword(); break;
+                case 9: HandleChequeBookApprovals(); break;
+                case 10:
                     isWorking = false;
                     Console.WriteLine();
                     Console.WriteLine("Returning to login...");
@@ -79,6 +81,24 @@ public class AdminMenu
 
         Console.WriteLine();
         Console.WriteLine(result.Success ? "Customer created successfully." : result.Error);
+        ConsoleHelper.Pause();
+    }
+
+    private void HandleCreateAdmin()
+    {
+        ConsoleHelper.Clear();
+        Console.WriteLine("========================================");
+        Console.WriteLine("            CREATE ADMIN");
+        Console.WriteLine("========================================");
+        Console.WriteLine();
+
+        string username = ConsoleHelper.ReadRequiredString("Username: ");
+        string password = ConsoleHelper.ReadPassword("Password: ");
+
+        var result = adminService.CreateAdmin(username, password);
+
+        Console.WriteLine();
+        Console.WriteLine(result.Success ? "Admin created successfully." : result.Error);
         ConsoleHelper.Pause();
     }
 

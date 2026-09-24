@@ -12,8 +12,8 @@ using bankingApp.data;
 namespace bankingApp.Migrations
 {
     [DbContext(typeof(BankingDbContext))]
-    [Migration("20260923050044_ChangeOnDeleteBehaviorForAllEntities")]
-    partial class ChangeOnDeleteBehaviorForAllEntities
+    [Migration("20260924212114_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -265,14 +265,14 @@ namespace bankingApp.Migrations
                     b.HasOne("bankingApp.data.entities.accounts.BankAccount", "Account")
                         .WithMany("Transactions")
                         .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_transactions_accounts");
 
                     b.HasOne("bankingApp.data.entities.accounts.BankAccount", "RecipientAccount")
                         .WithMany()
                         .HasForeignKey("RecipientAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_transactions_recipient");
 
                     b.Navigation("Account");

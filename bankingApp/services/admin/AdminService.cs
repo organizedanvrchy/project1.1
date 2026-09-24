@@ -3,6 +3,7 @@ using bankingApp.data.entities.accounts;
 using bankingApp.data.entities.chequebook;
 using bankingApp.data.entities.users;
 using bankingApp.repositories.account;
+using bankingApp.repositories.admin;
 using bankingApp.repositories.chequebook;
 using bankingApp.repositories.customer;
 using bankingApp.repositories.transactions;
@@ -12,17 +13,20 @@ namespace bankingApp.services.admin;
 public class AdminService : IAdminService
 {
     private readonly ICustomerRepository customerRepo;
+    private readonly IAdminRepository adminRepo;
     private readonly IBankAccountRepository accountRepo;
     private readonly ITransactionRepository transactionRepo;
     private readonly IChequeBookRequestRepository chequeBookRepo;
 
     public AdminService(
         ICustomerRepository customerRepository,
+        IAdminRepository adminRepository,
         IBankAccountRepository accountRepository,
         ITransactionRepository transactionRepository,
         IChequeBookRequestRepository chequeBookRepository)
     {
         customerRepo = customerRepository;
+        adminRepo = adminRepository;
         accountRepo = accountRepository;
         transactionRepo = transactionRepository;
         chequeBookRepo = chequeBookRepository;
@@ -52,6 +56,29 @@ public class AdminService : IAdminService
         };
 
         customerRepo.Add(newCustomer);
+        return Result.Ok();
+    }
+
+        public Result CreateAdmin(string username, string plainPassword)
+    {
+        username = username.Trim().ToLower();
+
+        if (string.IsNullOrWhiteSpace(username))
+            return Result.Fail("Username is required.");
+
+        if (adminRepo.GetByUsername(username) is not null)
+            return Result.Fail("Username already taken.");
+
+        if (string.IsNullOrWhiteSpace(plainPassword) || plainPassword.Length < 6)
+            return Result.Fail("Password must be at least 6 characters.");
+
+        var newAdmin = new Admin
+        {
+            Username = username,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(plainPassword)
+        };
+
+        adminRepo.Add(newAdmin);
         return Result.Ok();
     }
 

@@ -133,7 +133,7 @@ public class BankingDbContext : DbContext
             entity.HasOne(d => d.RecipientAccount)
                   .WithMany()
                   .HasForeignKey(d => d.RecipientAccountId)
-                  .OnDelete(DeleteBehavior.Cascade)
+                  .OnDelete(DeleteBehavior.NoAction)
                   .HasConstraintName("FK_transactions_recipient");
                 
             entity.Property(e => e.Direction)

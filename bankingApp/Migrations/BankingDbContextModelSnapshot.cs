@@ -239,6 +239,7 @@ namespace bankingApp.Migrations
                     b.HasOne("bankingApp.data.entities.users.Customer", "Customer")
                         .WithMany("BankAccounts")
                         .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -249,6 +250,7 @@ namespace bankingApp.Migrations
                     b.HasOne("bankingApp.data.entities.accounts.BankAccount", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_cheque_requests_accounts");
 
@@ -260,14 +262,14 @@ namespace bankingApp.Migrations
                     b.HasOne("bankingApp.data.entities.accounts.BankAccount", "Account")
                         .WithMany("Transactions")
                         .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_transactions_accounts");
 
                     b.HasOne("bankingApp.data.entities.accounts.BankAccount", "RecipientAccount")
                         .WithMany()
                         .HasForeignKey("RecipientAccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_transactions_recipient");
 
                     b.Navigation("Account");
