@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using bankingApp.common;
 using bankingApp.data.entities.accounts;
 using bankingApp.data.entities.chequebook;
 using bankingApp.data.entities.transactions;
@@ -74,7 +73,7 @@ public class BankingDbContext : DbContext
             entity.HasOne(d => d.Customer)
                   .WithMany(p => p.BankAccounts)
                   .HasForeignKey(d => d.CustomerId)
-                  .OnDelete(DeleteBehavior.ClientSetNull);
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<SavingsAccount>(entity =>
@@ -128,13 +127,13 @@ public class BankingDbContext : DbContext
             entity.HasOne(d => d.Account)
                   .WithMany(p => p.Transactions)
                   .HasForeignKey(d => d.AccountId)
-                  .OnDelete(DeleteBehavior.Restrict)
+                  .OnDelete(DeleteBehavior.Cascade)
                   .HasConstraintName("FK_transactions_accounts");
 
             entity.HasOne(d => d.RecipientAccount)
                   .WithMany()
                   .HasForeignKey(d => d.RecipientAccountId)
-                  .OnDelete(DeleteBehavior.Restrict)
+                  .OnDelete(DeleteBehavior.Cascade)
                   .HasConstraintName("FK_transactions_recipient");
                 
             entity.Property(e => e.Direction)
@@ -173,7 +172,7 @@ public class BankingDbContext : DbContext
             entity.HasOne(d => d.Account)
                   .WithMany()
                   .HasForeignKey(d => d.AccountId)
-                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .OnDelete(DeleteBehavior.Cascade)
                   .HasConstraintName("FK_cheque_requests_accounts");
         });
     }
