@@ -183,6 +183,11 @@ public class AdminService : IAdminService
         };
     }
 
+    // Implementation
+    public List<Customer> GetAllCustomers() => customerRepo.GetAll();
+
+    public List<BankAccount> GetAllBankAccounts() => accountRepo.GetAll();
+
     public Result ResetCustomerPassword(int customerId, string newPassword)
     {
         var customer = customerRepo.GetById(customerId);

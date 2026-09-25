@@ -6,6 +6,7 @@ public interface IBankAccountRepository
 {
     BankAccount? GetById(int accountId);
     List<BankAccount> GetByCustomer(int customerId);
+    List<BankAccount> GetAll();
     void Add(BankAccount account);
     void Save();   // persists whatever changes were made to a tracked entity
     void Delete(int accountId);

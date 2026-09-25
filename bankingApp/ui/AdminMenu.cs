@@ -139,6 +139,14 @@ public class AdminMenu
         ConsoleHelper.Pause();
     }
 
+    private static string TypeName(BankAccount account) => account switch
+    {
+        CheckingAccount => "Checking",
+        SavingsAccount => "Savings",
+        LoanAccount => "Loan",
+        _ => "Unknown"
+    };
+
     private void HandleDeleteCustomer()
     {
         ConsoleHelper.Clear();
@@ -147,6 +155,20 @@ public class AdminMenu
         Console.WriteLine("========================================");
         Console.WriteLine();
 
+        var customers = adminService.GetAllCustomers();
+        if (customers.Count == 0)
+        {
+            Console.WriteLine("No customers found.");
+            ConsoleHelper.Pause();
+            return;
+        }
+
+        Console.WriteLine("ID    USERNAME");
+        Console.WriteLine("----------------------------------------");
+        foreach (var customer in customers)
+            Console.WriteLine($"{customer.UserId,-5} {customer.Username}");
+
+        Console.WriteLine();
         int customerId = ConsoleHelper.ReadPositiveInt("Customer ID: ");
 
         if (!ConsoleHelper.Confirm($"Are you sure you want to delete customer {customerId}?"))
@@ -171,6 +193,20 @@ public class AdminMenu
         Console.WriteLine("========================================");
         Console.WriteLine();
 
+        var accounts = adminService.GetAllBankAccounts();
+        if (accounts.Count == 0)
+        {
+            Console.WriteLine("No bank accounts found.");
+            ConsoleHelper.Pause();
+            return;
+        }
+
+        Console.WriteLine("ID    TYPE       CUSTOMER ID   BALANCE");
+        Console.WriteLine("----------------------------------------");
+        foreach (var account in accounts)
+            Console.WriteLine($"{account.AccountId,-5} {TypeName(account),-10} {account.CustomerId,-13} {account.Balance,10:C}");
+
+        Console.WriteLine();
         int accountId = ConsoleHelper.ReadPositiveInt("Account ID: ");
 
         if (!ConsoleHelper.Confirm($"Are you sure you want to delete account {accountId}?"))

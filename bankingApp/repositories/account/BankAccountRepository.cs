@@ -12,14 +12,15 @@ public class BankAccountRepository : IBankAccountRepository
         baContext = context;
     }
 
-    // Find() both loads AND tracks the entity -- so once a service calls
-    // account.Withdraw(...) on the object this returns, calling Save() below
-    // is all that's needed to persist it. No separate method is required.
-    public BankAccount? GetById(int accountId) =>
-        baContext.BankAccounts.Find(accountId);
+    // Find() both loads AND tracks the entity, so once a service calls
+    // account.Withdraw() on the object this returns, calling Save() below
+    // is all that's needed to persist it. No separate method required.
+    public BankAccount? GetById(int accountId) => baContext.BankAccounts.Find(accountId);
 
     public List<BankAccount> GetByCustomer(int customerId) =>
         baContext.BankAccounts.Where(a => a.CustomerId == customerId).ToList();
+
+    public List<BankAccount> GetAll() => baContext.BankAccounts.ToList();
 
     public void Add(BankAccount account)
     {

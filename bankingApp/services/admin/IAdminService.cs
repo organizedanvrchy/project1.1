@@ -1,6 +1,7 @@
 using bankingApp.common;
 using bankingApp.data.entities.accounts;
 using bankingApp.data.entities.chequebook;
+using bankingApp.data.entities.users;
 
 namespace bankingApp.services.admin;
 
@@ -13,6 +14,8 @@ public interface IAdminService
     Result DeleteBankAccount(int accountId);
     Result EditCustomerUsername(int customerId, string newUsername);
     AdminSummary GetSummary();
+    List<Customer> GetAllCustomers();
+    List<BankAccount> GetAllBankAccounts();
     Result ResetCustomerPassword(int customerId, string newPassword);
     List<ChequeBookRequest> GetPendingChequeBookRequests();
     Result ApproveChequeBookRequest(int requestId);
